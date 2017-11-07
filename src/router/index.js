@@ -59,13 +59,13 @@ const router =  new Router({
 
 // 路由设置页面的title和增加了请求进度动画
 router.beforeEach((to, from, next)=>{
-	iView.LoadingBar.start()
-	document.title = to.name
-	next()
+    iView.LoadingBar.start()
+    document.title = to.name
+    next()
 })
 
 router.afterEach((to, from, next) => {
-  iView.LoadingBar.finish()
+    iView.LoadingBar.finish()
 })
 
 export default router

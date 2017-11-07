@@ -8,9 +8,9 @@ import VuexStore from '@/store/index'
 
 // axios 类ajax请求工具 
 // 通过使用vue-axios注册到vue实例中，在任何一个vue的实例中都可以使用`this.axios`发起请求
-import axios from 'axios'
-import vueAxios from 'vue-axios'
-Vue.use(vueAxios, axios)
+// import axios from 'axios'
+// import vueAxios from 'vue-axios'
+// Vue.use(vueAxios, axios)
 
 // iview UI组件库
 import iView from 'iview'
