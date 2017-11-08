@@ -58,7 +58,7 @@
             </div>
         </transition>
   
-        <div class="home__content" :style="'marginLeft:'+expand.homeContentML+'px'">
+        <div class="home__content" :style="'marginLeft:'+expand.homeContentML+'px;min-width:' + expand.homeContentMW +'px'">
             <div class="home__content--breadcrumb">
                 <Breadcrumb>
                     <BreadcrumbItem>THink前端平台</BreadcrumbItem>
@@ -80,7 +80,6 @@
 <script>
 import menuApi from '@/api/menu'
 
-
 export default {
     name: 'home',
     data() {
@@ -88,6 +87,7 @@ export default {
             expand: {
 				isShowSlider: true,
 				homeContentML: 220,
+                homeContentMW: 765,
 				icon: '\<Icon type=\"arrow-expand\"\>\<\/Icon\>'
 			},
             breadcrumbData: [],
@@ -97,15 +97,17 @@ export default {
         }
     },
     created () {
-        menuApi.getMenuList(data => {
-            this.menuList = data.result
+        menuApi.getMenuList({
+            success: data => {
+                this.menuList = data.result
+            }
         })
-
     },
     methods: {
         togglePageSize () {
             this.expand.isShowSlider  = !this.expand.isShowSlider;
-		    this.expand.homeContentML = this.expand.homeContentML === 220 ? 15 : 220;
+		    this.expand.homeContentML = !this.expand.isShowSlider ? 15 : 220;
+            this.expand.homeContentMW = !this.expand.isShowSlider ? 970 : 765;
         },
         changeBreadcrumb (data) {
 			const self = this
@@ -219,6 +221,8 @@ export default {
     padding: 10px 0 20px;
     color: #9ea7b4; 
 }
+
+
 
 /* 通用样式 */
 .fs-normal {

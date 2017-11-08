@@ -1,44 +1,26 @@
 // 文章类接口
-import axios from 'axios'
-import config from '@/common/config'
+import requestCore from '@/api/request-core'
 
-const articleApi = {
+class articleApi extends requestCore {
     // 新增文章接口
-    addArticle (callback) {
-        axios.get(config.url + 'api/article/addArticle')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    addArticle (arg, ...other) {
+        this.get('api/article/addArticle', arg)
+    }
+
     // 编辑文章接口
-    editArticle (callback) {
-        axios.get(config.url + 'api/article/editArticle')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    editArticle (arg, ...other) {
+        this.get('api/article/editArticle', arg)
+    }
+
     // 获取文章列表接口
-    getArticleList (callback) {
-        axios.get(config.url + 'api/article/getArticleList')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    getArticleList (arg, ...other) {
+        this.get('api/article/getArticleList', arg)
+    }
+
     // 删除文章接口
-    delArticle (callback) {
-        axios.get(config.url + 'api/article/delArticle')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    delArticle (arg, ...other) {
+        this.get('api/article/delArticle', arg)
+    }
 }
 
-export default articleApi;
+export default new articleApi()

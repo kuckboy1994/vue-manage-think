@@ -1,22 +1,34 @@
 <template>
     <div class="platelist">
         <div class="option-bar">
-            <Select class="option-bar__select--order-type" @on-change="updateSort" value="0">
-                <Option value="0">默认</Option>
-                <Option value="1">最新</Option>
-                <Option value="2">最热门</Option>
-                <Option value="3">最具潜力</Option>
+            <Select class="option-bar__select--order-type" v-model="sortModel">
+                <Option :value="0">默认</Option>
+                <Option :value="1">最新</Option>
+                <Option :value="2">最热门</Option>
+                <Option :value="3">最具潜力</Option>
             </Select>
             <Button type="primary" class="option-bar__button--add" @click="addmodal = true">新增</Button>
-            <Modal title="新建板块" class="addplate-modal" v-model="addmodal" @on-ok="addBlock" @on-cancel="cancelBlock">
+            <Modal title="新建板块" 
+                class="addplate-modal" 
+                v-model="addmodal"
+                :styles="{top: '20px'}" 
+                @on-ok="addBlock" 
+                @on-cancel="cancelBlock">
                 <Row :gutter="16">
                     <Col span="6">
                         <div class="addplate-modal--line-title">板块LOGO:</div>
                     </Col>
                     <Col span="18">
-                        <Upload name="file" ref="upload" :on-success="upLoadSuccess" :format="['jpg','jpeg','png']" :max-size="2048" multiple type="drag" :action="upload" class="addplate-modal__upload">
+                        <Upload name="file" 
+                                ref="upload" 
+                                :on-success="upLoadSuccess" 
+                                :format="['jpg','jpeg','png']" 
+                                :max-size="2048" 
+                                type="drag" 
+                                :action="upload" 
+                                class="addplate-modal__upload">
                             <div class="addplate-modal__upload--preview">
-                                <img v-if="picHolder" :src="picHolder" width="180" height="180">
+                                <img v-if="picHolder" :src="picHolder" width="200" height="200">
                                 <Icon v-if="!picHolder" type="camera" size="50"></Icon>
                             </div>
                         </Upload>
@@ -37,7 +49,11 @@
                         <div class="addplate-modal--line-title">板块说明:</div>
                     </Col>
                     <Col span="18">
-                        <Input v-model="addModalData.info" type="textarea" :autosize="{minRows: 2,maxRows: 5}" :maxlength="100" placeholder="请输入板块说明..."></Input>
+                        <Input v-model="addModalData.info" 
+                            type="textarea" 
+                            :autosize="{minRows: 2,maxRows: 5}" 
+                            :maxlength="100" 
+                            placeholder="请输入板块说明..."></Input>
                     </Col>
                 </Row>
                 <br>
@@ -46,8 +62,17 @@
                         <div class="addplate-modal--line-title">板块标签:</div>
                     </Col>
                     <Col span="18">
-                        <Select remote :remote-method="remoteLabels" :loading="labelLoading" v-model="addModalData.label" :filterable="true" :multiple="true" not-found-text="回车增加新标签" ref="labelSelect" placeholder="输入关键字获取标签列表" @keyup.native.13="addLabel">
-                            <Option v-for="(item, index) in labels" :value="item" :key="'blocklist_label_list_'+index">{{ item }}</Option>
+                        <Select :remote="true" 
+                                :remote-method="remoteLabels" 
+                                :loading="labelLoading" 
+                                v-model="addModalData.label" 
+                                :filterable="true" 
+                                :multiple="true" 
+                                not-found-text="回车增加新标签" 
+                                ref="labelSelect" 
+                                placeholder="输入关键字获取标签列表" 
+                                @keyup.native.13="addLabel">
+                            <Option v-for="(item, index) in labels" :value="item" :key="'platelist_modal_label_'+index">{{ item }}</Option>
                         </Select>
                     </Col>
                 </Row>
@@ -71,7 +96,7 @@
             </Modal>
         </div>
         <ul class="platelist-container">
-            <li v-for="(item, i) in blocklist" v-if="item.status === 0">
+            <li v-for="(item, i) in platelist" v-if="item.status === 0">
                 <img :src="item.pic" width="198" height="198">
                 <div class="plateitem-detail">
                     <router-link :to="{path: 'blockdetail/'+item['id']}">
@@ -87,7 +112,7 @@
                         </div>
                     </router-link>
                 </div>
-                <div class="block-info">
+                <div class="plateitem-detail-info">
                     <p>{{item['plate_name']}}</p>
                     <p>创建人:{{item['create_user']['username']}}</p>
                     <img :src="item['create_user']['pic']" height="40" width="40">
@@ -100,6 +125,7 @@
 
 <script>
 import plateApi from '@/api/plate'
+import labelApi from '@/api/label'
 import {upload} from '@/common/config'
 
 export default {
@@ -107,10 +133,9 @@ export default {
     data () {
         return {
             upload: upload,
-            blocklist: [],
-            sortOption: {
-                type: 0
-            },
+            platelist: [],
+            sortModel: 0,
+
             picHolder: '',
             addmodal: false,
             addModalData: {
@@ -122,6 +147,7 @@ export default {
                 maintain_ids: []
             },
             labels: [],
+
             maintainIds: [],
             labelLoading: false,
             userLoading: false
@@ -129,47 +155,117 @@ export default {
         }
     },
     created () {
-        const self = this
-        // this.$Loading.start()
-        plateApi.getPlateList(data => {
-            console.log(data)
-            // this.$Loading.finish()
-        }, e => {
-            console.log(e)
-            // this.$Loading.error()
+        plateApi.getPlateList({
+            success: data => {
+                this.platelist = data.result.result
+            }, 
+            error: error => {
+                console.log(errrore)
+            }
         })
-        // self.axios.get(self.url + 'api/plate/getPlateList')
-        //     .then(function (response) {
-        //         self.$Loading.finish();
-        //         // console.log(response.data)
-        //         var data = response.data;
-        //         if (data['error_code'] !== 0) {
-        //             return
-        //         }
-        //         self.blocklist = data.result.result
-        //     }).catch(function (error) {
-        //         console.log(error);
-        //         self.$Loading.error();
-        //     })
     },
     methods: {
-        updateSort () {
-
-        },
+        sortData () {
+			this.platelist = this.platelist.sort((a, b) => {
+				switch (this.sortModel) {
+					case '0':
+						if (a['create_time'] <= b['create_time']) {
+							return 1;
+						} else {
+							return -1;
+						}
+						break;
+					case '1':
+						if (a['update_time'] <= b['update_time']) {
+							return 1;
+						} else {
+							return -1;
+						}
+						break;
+					case '2':
+						if (a['visit'] <= b['visit']) {
+							return 1;
+						} else {
+							return -1;
+						}
+						break;
+					case '3':
+						if (a['article_count'] <= b['article_count']) {
+							return 1;
+						} else {
+							return -1;
+						}
+						break;
+				}
+			})
+		},
         addBlock () {
 
         },
         cancelBlock () {
 
         },
-        upLoadSuccess () {
-
+        upLoadSuccess (res, file) {
+			this.picHolder = res.filename
+			this.addModalData.pic = res.filename
+			setTimeout(() => {
+				this.$refs.upload.clearFiles()
+			}, 1500)
         },
-        remoteLabels () {
-
+        remoteLabels (query) {
+			if (query !== '') {
+				this.labelLoading = true
+                labelApi.getLenovoLabelList({
+                    data: {
+                        name: query,
+                        limit: 5
+                    }, 
+                    success: data => {
+                        this.labelLoading = false
+                        this.labels = []
+                        for (let i in data.result) {
+                            this.labels.push(data.result[i]['name'])
+                        }
+                    }, 
+                    error: error => {
+                        this.labelLoading = false
+                        console.log(error)
+                    }
+                })
+			} else {
+				this.labels = []
+			}
+		},
+        addLabel (e) {
+            if (e.target.value) {
+                labelApi.addLabel({
+                    data: {
+                        name: e.target.value
+                    }, 
+                    success: data => {
+                        this.$Notice.success({
+                            title: '新增标签“' + e.target.value + '”成功',
+                            desc: '重新搜索该标签添加为当前板块的标签吧！'
+                        });
+                    }, 
+                    error: error => {
+                        this.$Notice.error({
+                            title: '新增标签“' + e.target.value + '”失败',
+                            desc: error
+                        });
+                        console.log(error)
+                    }
+                })
+			}
         },
         remoteUser () {
 
+        }
+    },
+    watch: {
+        sortModel (val) {
+            console.d(val)
+            this.sortData()
         }
     }
 }
@@ -191,7 +287,7 @@ export default {
 }
 
 .addplate-modal {
-
+    /*top: 20px;*/
 }
 .addplate-modal--line-title {
     font-size: 14px;
@@ -216,6 +312,16 @@ export default {
     margin-top: 20px;
 	overflow: hidden;
 }
+.platelist-container li {
+	float: left;
+	margin: 15px 29px 29px;
+	width: 200px;
+	border: 1px solid #ccc;
+	position: relative;
+}
+.platelist-container li>img {
+	cursor: pointer;
+}
 .plateitem-detail {
     position: absolute;
 	width: 198px;
@@ -237,4 +343,29 @@ export default {
 .plateitem-detail:hover .plateitem-detail--hide {
 	transform: translateY(0);
 }
+.plateitem-detail-info {
+    width: 200px;
+	height: 60px;
+	position: relative;
+	padding: 10px 15px;
+}
+.plateitem-detail-info p:nth-child(1) {
+	font-weight: bold;
+}
+.plateitem-detail-info p:nth-child(2) {
+	color: #aaa;
+}
+.plateitem-detail-info img {
+	border-radius: 50%;
+	border: 1px solid #ccc;
+	position: absolute;
+	top: 10px;
+	right: 15px;
+	cursor: pointer;
+	transition: all .5s ease;
+}
+.plateitem-detail-info img:hover {
+	transform: rotate(360deg);
+}
+
 </style>

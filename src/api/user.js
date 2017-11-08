@@ -1,27 +1,16 @@
 // 文章类接口
-import axios from 'axios'
-import config from '@/common/config'
+import requestCore from '@/api/request-core'
 
-const userApi = {
+class userApi extends requestCore {
     // 获取用户个人信息
-    getUserInfo (callback) {
-        axios.get(config.url + 'api/user/getUserInfo')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
-    // 用户信息联想接口
-    getLenovoUserList (callback) {
-        axios.get(config.url + 'api/user/getLenovoUserList')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    getUserInfo (arg, ...other) {
+        this.get('api/user/getUserInfo', arg)
+    }
 
+    // 用户信息联想接口
+    getLenovoUserList (arg, ...other) {
+        this.get('api/user/getLenovoUserList', arg)
+    }
 }
 
-export default userApi;
+export default new userApi()

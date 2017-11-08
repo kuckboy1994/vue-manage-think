@@ -1,53 +1,32 @@
 // 菜单类所有接口
-import axios from 'axios'
-import config from '@/common/config'
+import requestCore from '@/api/request-core'
 
-const menuApi = {
+class menuApi extends requestCore {
     // 获取所有菜单接口
-    getMenuList (callback) {
-        axios.get(config.url + 'api/menu/getMenuList')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    getMenuList (arg, ...other) {
+        this.get('api/menu/getMenuList', arg)
+    }
+
     // 编辑所有菜单接口
-    editMenuList (callback) {
-        axios.get(config.url + 'api/menu/editMenuList')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    editMenuList (arg, ...other) {
+        this.get('api/menu/editMenuList', arg)
+    }
+
     // 添加单个菜单接口
-    addMenu (callback) {
-        axios.get(config.url + 'api/menu/addMenu')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    addMenu (arg, ...other) {
+        this.get('api/menu/addMenu', arg)
+    }
+
     // 编辑单个菜单接口
-    editMenu (callback) {
-        axios.get(config.url + 'api/menu/editMenu')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    editMenu (arg, ...other) {
+        this.get('api/menu/editMenu', arg)
+    }
+
     // 删除单个菜单接口
-    delMenu (callback) {
-        axios.get(config.url + 'api/menu/delMenu')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    delMenu (arg, ...other) {
+        this.get('api/menu/delMenu', arg)
+    }
+
 }
 
-export default menuApi;
+export default new menuApi()

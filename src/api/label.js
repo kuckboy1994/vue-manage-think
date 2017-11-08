@@ -1,26 +1,16 @@
 // 标签类接口
-import axios from 'axios'
-import config from '@/common/config'
+import requestCore from '@/api/request-core'
 
-const labelApi = {
+class labelApi extends requestCore {
     // 标签联想接口
-    getLenovoLabelList (callback) {
-        axios.get(config.url + 'api/menu/getLenovoLabelList')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    getLenovoLabelList (arg, ...other) {
+        this.get('api/label/getLenovoLabelList', arg)
+    }
+
     // 新增标签接口
-    addLabel (callback) {
-        axios.get(config.url + 'api/menu/addLabel')
-            .then(response => {
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-    },
+    addLabel (arg, ...other) {
+        this.get('api/label/addLabel', arg)
+    }
 }
 
-export default labelApi;
+export default new labelApi()

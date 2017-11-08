@@ -1,90 +1,36 @@
 // 板块类接口
-import {LoadingBar} from 'iview'
-import axios from 'axios'
-import config from '@/common/config'
-console.log(LoadingBar)
+import requestCore from '@/api/request-core'
 
-const plateApi = {
+class plateApi extends requestCore {
+    constructor () {
+        super()
+    }
     // 板块查询接口
-    getPlateList (callback, errorCallback) {
-        LoadingBar.start()
-        axios.get(config.url + 'api/plate/getPlateList')
-            .then(response => {
-                LoadingBar.finish()
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-            .catch(e => {
-                LoadingBar.error()
-                errorCallback()
-                console.log(e)
-            })
-    },
+    getPlateList (arg, ...other) {
+        this.get('api/plate/getPlateList', arg)
+    }
+
     // 获得一个板块的id和名称
-    getSimplePlateList (callback, errorCallback) {
-        LoadingBar.start()
-        axios.get(config.url + 'api/plate/getSimplePlateList')
-            .then(response => {
-                LoadingBar.finish()
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-            .catch(e => {
-                LoadingBar.error()
-                errorCallback()
-                console.log(e)
-            })
-    },
+    getSimplePlateList (arg, ...other) {
+        this.get('api/plate/getSimplePlateList', arg)
+    }
+
     // 新增板块接口
-    addPlate (callback, errorCallback) {
-        LoadingBar.start()
-        axios.get(config.url + 'api/plate/addPlate')
-            .then(response => {
-                LoadingBar.finish()
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-            .catch(e => {
-                LoadingBar.error()
-                errorCallback()
-                console.log(e)
-            })
-    },
+    addPlate (arg, ...other) {
+        this.get('api/plate/addPlate', arg)
+    }
+
     // 修改板块接口
-    editPlate (callback, errorCallback) {
-        LoadingBar.start()
-        axios.get(config.url + 'api/plate/editPlate')
-            .then(response => {
-                LoadingBar.finish()
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-            .catch(e => {
-                LoadingBar.error()
-                errorCallback()
-                console.log(e)
-            })
-    },
+    editPlate (arg, ...other) {
+        this.get('api/plate/editPlate', arg)
+    }
+
     // 删除板块接口
-    delPlate (callback, errorCallback) {
-        LoadingBar.start()
-        axios.get(config.url + 'api/plate/delPlate')
-            .then(response => {
-                LoadingBar.finish()
-                if (response['data']['error_code'] === 0) {
-                    callback(response['data'])
-                }
-            })
-            .catch(e => {
-                LoadingBar.error()
-                errorCallback()
-                console.log(e)
-            })
-    },
+    delPlate (arg, ...other) {
+        this.get('api/plate/delPlate', arg)
+    }
+
+
 }
 
-export default plateApi;
+export default new plateApi()
