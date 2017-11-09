@@ -110,15 +110,13 @@ export default {
             this.expand.homeContentMW = !this.expand.isShowSlider ? 970 : 765;
         },
         changeBreadcrumb (data) {
-			const self = this
-
+            console.log(data)
 			var indexX = ''
 			var indexY = ''
-			var x, y
-			for (x in self.menuList) {
-				// self.openName = self.menuList[x]['menu_name']
-				for (y in self.menuList[x]['children']) {
-					if (data === self.menuList[x]['children'][y]['menu_name']) {
+			for (let x in this.menuList) {
+				// this.openName = this.menuList[x]['menu_name']
+				for (let y in this.menuList[x]['children']) {
+					if (data === this.menuList[x]['children'][y]['menu_name']) {
 						indexX = x
 						indexY = y
 					}
@@ -126,10 +124,10 @@ export default {
 			}
 
 			if (indexX && indexY) {
-				self.breadcrumbData = new Array(self.menuList[indexX]['menu_name'], self.menuList[indexX]['children'][indexY]['menu_name'])
+				this.breadcrumbData = new Array(this.menuList[indexX]['menu_name'], this.menuList[indexX]['children'][indexY]['menu_name'])
 			} else {
 				let dataArr = data.split('-')
-				self.breadcrumbData = [dataArr[dataArr.length-1]]
+				this.breadcrumbData = [dataArr[dataArr.length-1]]
 			}
 		},
     },

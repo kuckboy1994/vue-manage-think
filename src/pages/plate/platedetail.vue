@@ -1,12 +1,16 @@
 <template>
 	<div class="platedetail">
-		<div class="platedetail__info" v-if="blockInfo">
-			<img :src="blockInfo['pic']">
+		<div class="platedetail__info" v-if="plateInfo">
+			<img :src="plateInfo['pic']">
 			<div class="platedetail__info--right">
-				<h1>{{blockInfo['plate_name']}}</h1>
-				<p class="create">创建人：{{blockInfo['create_user']['username']}} &nbsp; 创建时间：{{blockInfo['create_time'].substr(0,10)}}</p>
-				<p class="charge">负责人：<Tag v-for="(v, i) in blockInfo['maintain_user']" :key="i">{{v['username']}}</Tag>
-				<p class="introduce">{{blockInfo['info']}}</p>
+				<h1>{{plateInfo['plate_name']}}</h1>
+				<p class="create">创建人：{{plateInfo['create_user']['username']}} &nbsp; 创建时间：{{plateInfo['create_time'].substr(0,10)}}</p>
+				<p class="charge">
+					负责人：
+					<router-link  v-for="(v, i) in plateInfo['maintain_user']" :key="'platedetail_info_maintain_user_'+i" :to="{path: '/u/'+v['userid']}">
+						<Tag>{{v['username']}}</Tag>
+					</router-link>
+				<p class="introduce">{{plateInfo['info']}}</p>
 			</div>
 		</div>
 		<div class="plate-container">
@@ -15,27 +19,45 @@
 		            <DatePicker type="daterange" :options="options2" placement="bottom-start" placeholder="选择日期" @on-change="changeDate"></DatePicker>
 		        </Col>
 		        <Col span="6">
-		        	<Input v-model="key_word" placeholder="请输入..."></Input>
+		        	<Input v-model="key_word" placeholder="请输入..." @on-enter="setKeyWordToConfig"></Input>
 		    	</Col>
 		    	<Col span="10">
 		    		<Button type="primary" icon="ios-search" @click="setKeyWordToConfig">搜索</Button>
-		    		<Button type="primary" icon="compose" @click="routerPush({path:'/writing'},'写文章')">写文章</Button>
+		    		<Button type="primary" icon="compose" @click="routerPush({path:'/mkwriting'}, '写文章')">写文章</Button>
 		    	</Col>
 		    </Row>
 		    <hr style="margin: 10px 0;">
 		    <div class="plate-content">
 		    	<ul class="plate-content__list">
-		    		<li v-for="(value, index) in blockList">
+		    		<li v-for="(value, index) in plateList" :key="'platedetail_list_' + index">
 		    			<img :src="value.pic" class="plate-content__item--right">
 		    			<div class="plate-content__item--left">
-		    				<h3><router-link :to="{path: '/a/'+value.id}">{{value.title}}</router-link> <Tag color="yellow">{{value.typename}}</Tag>( <Tag v-for="(label, i) in value.label" :key="'blockdetail_article_tag_'+i">{{label}}</Tag>)</h3>
-			    			<div class="article-bar"><Icon type="thumbsup"></Icon> ({{value.support}}) <Icon type="chatbox-working"></Icon> ({{value.suggest}})&nbsp;&nbsp;<Avatar style="background-color: #87d068; vertical-align: middle;" size="small" :src="value['create_user']['pic']" :title="value['create_user']['username']"/></div>
+		    				<h3>
+								<router-link :to="{path: '/a/'+value.id}">{{value.title}}</router-link>
+								<Tag color="yellow">{{value.typename}}</Tag>
+							</h3>
+							<p>
+								<span class="article-info">
+									<router-link :to="{path: '/u/'+value['create_user']['userid']}">
+										<Avatar class="article-info__avatar" 
+												size="small" 
+												:src="value['create_user']['pic']" 
+												:title="value['create_user']['username']"/>
+									</router-link>
+									<Icon type="thumbsup"></Icon>
+									({{value.support}})
+									<Icon type="chatbox-working"></Icon>
+									({{value.suggest}})&nbsp;&nbsp;
+								</span>
+								( <Tag v-for="(label, i) in value.label" :key="'platedetail_article_tag_'+i">{{label}}</Tag>)
+							</p>
 			    			<p>{{value.abstracts}}</p>
 		    			</div>
 		    		</li>
 		    	</ul>
 
 		    	<Page 
+					v-if="pageConfig.total"
 		    		:total="pageConfig.total"
 		    		show-sizer 
 		    		:page-size-opts="[1,5,10,20,50]" 
@@ -43,6 +65,8 @@
 		    		@on-change="pageChange"
 		    		@on-page-size-change="pageSizeChange"
 		    		placement="top"></Page>
+
+				<h2 v-if="pageConfig.total === 0">还没有相关内容的文章...</h2>
 		    </div>
 		</div>
 	</div>
@@ -55,11 +79,10 @@ import articleApi from '@/api/article'
 export default {
 	name: 'platedetail',
 	data () {
-		const self = this
 		return {
 			modal1: false,
 			// url: config.url,
-			blockInfo: '',
+			plateInfo: '',
 			plateid: this.$route.params.plateid,
 			key_word: '',
 			filterConfig: {
@@ -74,8 +97,7 @@ export default {
 			},
 			a: 1,
 			pageConfig: {
-				total: 100
-
+				total: 0
 			},
 			options2: {
                 shortcuts: [
@@ -105,44 +127,71 @@ export default {
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
                             return [start, end];
                         }
+                    },
+                    {
+                        text: '最近一年',
+                        value () {
+                            const end = new Date();
+                            const start = new Date();
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
+                            return [start, end];
+                        }
                     }
                 ]
             },
-			blockList: [],
+			plateList: [],
 			pageConfig: {
 				total: 100
 			}
 		}
 	},
 	created () {
-        plateApi.getPlateList({
-            data: {
-                'plate_id': this.plateid
-            },
-            success: data => {
-                
-                this.blockInfo = data.result[0]
-                // console.d(this.blockInfo)
-            },
-            error: error => {
-                console.log(error)
-            }
-        })
+        this.getPlateInfo()
 		this.requestArticleList()
 	},
 	methods: {
-		routerPush (pathObj, data) {
-			const self = this
+		getPlateInfo () {
+			plateApi.getPlateList({
+				data: {
+					'plate_id': this.plateid
+				},
+				success: data => {
+					this.plateInfo = data.result.result[0]
+				},
+				error: error => {
+					console.log(error)
+				}
+			})
+		},
+		requestArticleList () {
+			console.d(this.filterConfig)
+            articleApi.getArticleList({
+                data: this.filterConfig,
+                success: data => {
+					console.d(data)
+                    this.pageConfig.total = data.result.total_num
+                    this.plateList = data.result.result
+                    for (let i in this.plateList) {
+                        let type = this.plateList[i].type
+                        if (type === 0) {
+                            this.plateList[i]['typename'] = '原创'
+                        } else if (type === 1) {
+                            this.plateList[i]['typename'] = '转载'
+                        } else if (type === 2) {
+                            this.plateList[i]['typename'] = '翻译'
+                        }
+                    }
+                },
+                error: error => {
+                    console.log(error)
+                }
+            })
+		},
+		routerPush (pathObj, text) {
 			this.$router.push(pathObj)
-/*			this.changeBreadcrumb(data)
-			this.activeName = ''
-			let temp = this.menuList
-			this.menuList = []
-			setTimeout(function () {
-				self.menuList = temp
-			})*/
 		},
 		setKeyWordToConfig () {
+			console.log(this['key_word'])
 			this.filterConfig['key_word'] = this['key_word']
 		},
 		pageChange (page) {
@@ -153,39 +202,14 @@ export default {
 			this.filterConfig['page_num'] = pageSize
 		},
 		changeDate (dates) {
-			console.log(dates[0], dates[1])
 			this.filterConfig['start_time'] = dates[0]
 			this.filterConfig['end_time'] = dates[1]
 		},
-		requestArticleList () {
-            articleApi.getArticleList({
-                data: this.filterConfig,
-                success: data => {
-                    console.d(data)
-                    this.pageConfig.total = data.result.length
-                    // console.log(response.data.result)
-                    this.blockList = data.result
-                    for (let i in this.blockList) {
-                        let type = this.blockList[i].type
-                        if (type === 0) {
-                            this.blockList[i]['typename'] = '原创'
-                        } else if (type === 1) {
-                            this.blockList[i]['typename'] = '转载'
-                        } else if (type === 2) {
-                            this.blockList[i]['typename'] = '翻译'
-                        }
-                    }
-                },
-                error: error => {
-                    console.log(error)
-                }
-            })
-		}
+		
 	},
 	watch: {
 		filterConfig: {
 			handler: function (val, oldVal) {
-				console.log('filterConfig')
 				this.requestArticleList();
 			},
      		deep: true
@@ -257,11 +281,13 @@ export default {
 	height: 100px;
 	float: right;
 }
-.article-bar {
-	position: absolute;
-	top: 0;
-	right: 0;
+.article-info {
 	font-size: 14px;
 	background-color: #fff;
+}
+.article-info__avatar {
+	background-color: #87d068; 
+	vertical-align: middle;
+	margin-right: 10px;
 }
 </style>

@@ -17,7 +17,7 @@ class plateApi extends requestCore {
 
     // 新增板块接口
     addPlate (arg, ...other) {
-        this.get('api/plate/addPlate', arg)
+        this.post('api/plate/addPlate', arg)
     }
 
     // 修改板块接口

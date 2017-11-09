@@ -1,9 +1,11 @@
 <template>
 	<div class="article">
-		<img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1507456451692&di=e72027eef5b76a0099c1b11cb642a02e&imgtype=0&src=http%3A%2F%2Fimg1.3lian.com%2F2015%2Fw10%2F51%2Fd%2F26.jpg" class="title-img">
+		<img src="../../assets/img/banner-2.jpg" class="title-img">
 		<div class="title-placeholder">
 			<h2>{{articleData.title}}</h2>
-			<img :src="articleData.create_user.pic" :title="articleData.create_user.username">
+			<router-link :to="{path: '/u/'+articleData.userid}">
+				<img :src="articleData.create_user.pic" :title="articleData.create_user.username">
+			</router-link>
 			<span :title="articleData.create_user.username">{{articleData.create_user.username}}</span>
 			<span :title="articleData.update_time.substr(0,10)">{{articleData.update_time.substr(0,10)}}</span>
 			<span :title="'访问量：'+articleData.visit">访问量：{{articleData.visit}}</span>
@@ -13,20 +15,20 @@
 </template>
 
 <script>
+import articleApi from '@/api/article'
+
 // import config from '@/public/config.js'
 // import {getCookie, getSession} from '../../public/methods.js'
 export default {
 	name: 'article',
 	data () {
-		const self = this
-		console.log(marked('# hello > shanchao '));
+		// console.log(marked('# hello > shanchao '));
 
 		return {
-			articleid: self.$route.params.articleid,
+			articleid: this.$route.params.articleid,
 			markdown: marked('*hello*'),
-			// url: config.url,
 			filterConfig: {
-				article_id: self.$route.params.articleid
+				article_id: this.$route.params.articleid
 			},
 			articleData: {
 				pic: '',
@@ -45,27 +47,24 @@ export default {
 		}
 	},
 	created () {
-		// this.requestArticleList()
+		this.requestArticleList()
 		// this.cookie = getCookie()
-// console.log(getCookie())
+		// console.log(getCookie())
 	},
 	methods: {
-		// requestArticleList () {
-		// 	this.$Loading.start();
-		// 	this.axios.get(this.url + 'api/article/getArticleList', {
-		// 		params: this.filterConfig
-		// 	}).then((response) => {
-		// 		this.$Loading.finish();
-		// 		console.log(response)
-		// 		this.articleData = response.data.result.result[0]
-		// 		this.articleData.markedcontent = marked(this.articleData.content)
-		// 		// console.log(response.result)
-		// 		// this.markdown = marked(response.data.result.result[0].content)
-		// 	}).catch((error) => {
-		// 		console.log(error);
-		// 		this.$Loading.error();
-		// 	})
-		// }
+		requestArticleList () {
+			articleApi.getArticleList({
+				data: this.filterConfig,
+				success: data => {
+					console.d(data)
+					this.articleData = data.result.result[0]
+					this.articleData.markedcontent = marked(this.articleData.content)
+				},
+				error: error => {
+					console.log(error)
+				}
+			})
+		}
 	}
 }
 </script>
@@ -82,11 +81,12 @@ export default {
 }
 .title-placeholder {
 	position: absolute;
-	left: 200px;
+	left: 70px;
 	top: 50px;
 	/*background-color: #fff;*/
 	/*width: 100px;*/
 	height: 100px;
+	color: black;
 }
 .title-placeholder h2 {
 	text-shadow: 0 0 5px #fff;

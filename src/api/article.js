@@ -4,12 +4,12 @@ import requestCore from '@/api/request-core'
 class articleApi extends requestCore {
     // 新增文章接口
     addArticle (arg, ...other) {
-        this.get('api/article/addArticle', arg)
+        this.post('api/article/addArticle', arg)
     }
 
     // 编辑文章接口
     editArticle (arg, ...other) {
-        this.get('api/article/editArticle', arg)
+        this.post('api/article/editArticle', arg)
     }
 
     // 获取文章列表接口

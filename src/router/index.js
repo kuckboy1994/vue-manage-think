@@ -16,6 +16,7 @@ import mkwritingPage from '@/pages/mkwriting'
 // 用户信息页面
 import uPage from '@/pages/user/u'
 
+import menuPage from '@/pages/menu/manage'
 
 Vue.use(Router)
 
@@ -39,7 +40,12 @@ const router =  new Router({
         },
         {
           path: '/mkwriting',
-          name: '创作你的世界-写文章',
+          name: '写文章',
+          component: mkwritingPage
+        },
+        {
+          path: '/mkwriting/:articleid',
+          name: '写文章',
           component: mkwritingPage
         },
         {
@@ -51,6 +57,11 @@ const router =  new Router({
           path: '/u/:userid',
           name: '用户信息',
           component: uPage
+        },
+        {
+          path: '/menu/manage',
+          name: '菜单管理',
+          component: menuPage
         },
       ]
     }
