@@ -16,11 +16,13 @@ import mkwritingPage from '@/pages/mkwriting'
 // 用户信息页面
 import uPage from '@/pages/user/u'
 
+// 菜单管理页面
 import menuPage from '@/pages/menu/manage'
 
 Vue.use(Router)
 
 const router =  new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
